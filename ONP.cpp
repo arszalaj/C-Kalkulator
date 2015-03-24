@@ -20,30 +20,6 @@ CONP::~CONP(void)
 }
 
 /**
-* Sprawdza czy ³añcuch znaków jest obs³ugiwan¹ przez kalkulato funkcj¹.
-* @param fn ³añcuch opisuj¹cy funkcjê
-* @return true, jeœli ³añcuch jest obs³ugiwan¹ funkcj¹, false - jeœli nie jest
-*/
-bool CONP::isFunction(string fn)
-{
-	if( !fn.compare("sin") ||
-		!fn.compare("cos") ||
-		!fn.compare("tan") ||
-		!fn.compare("ctg") ||
-		!fn.compare("log") ||
-		!fn.compare("ln") ||
-		!fn.compare("exp") ||
-		!fn.compare("asin") ||
-		!fn.compare("acos") ||
-		!fn.compare("atan") ||
-		!fn.compare("sqrt") ||
-		!fn.compare("fac"))
-		return true;
-	else 
-		return false;
-}
-
-/**
 * Zwraca priotytet operatora oraz jego ³acznoœæ.
 * @param[in] op operator
 * @param[out] assoc ³¹cznoœæ
@@ -51,11 +27,6 @@ bool CONP::isFunction(string fn)
 */
 int CONP::getPrior(std::string op, int &assoc)
 {
-	if(isFunction(op))
-	{
-		assoc = RIGHT_ASSOC;
-		return 5;
-	}
 	assoc = LEFT_ASSOC;
 	if(!op.compare("*") || !op.compare("/"))
 		return 3;
@@ -66,93 +37,6 @@ int CONP::getPrior(std::string op, int &assoc)
 
 	return 0;
 }
-/**
-* Oblicza wartoœæ funkcji.
-* @param[in] fn ³añcuch opisuj¹cy funkcjê
-* @param[in] arg argument funkcji
-* @param[out] result Obliczona wartoœæ funkcji.
-* @return false, je¿eli nieobs³ugiwana lub niepoprawna funkcja, true - je¿eli uda³o siê obliczyæ wynik
-*/
-bool CONP::evaluateFunction(string fn, string arg, long double &result)
-{
-	if(!fn.length() || !arg.length()) // jezeli argument albo funkcja ma zerow¹ d³ugoœæ
-		return false; // zwracamy false
-	fn = fn.substr(0,fn.length()-1);
-	if(!fn.compare("sin") || !fn.compare("cos") || !fn.compare("tan") || !fn.compare("ctg"))
-	{
-		/*if(units == trig::deg)
-			arg = degToRad(arg);*/
-	}
-	long double input_value = atof(arg.c_str());
-	
-
-	if(!fn.compare("sin")) // teraz porownujemy nazwe funkcji i jezeli jest to sin
-		result = sin(input_value); // liczymy wartosc sin dla danego argumentu (funkcja z bibliotei math.h
-	else if(!fn.compare("cos")) // analogicznie
-		result = cos(input_value); // dla 
-	else if(!fn.compare("exp"))// pozostalych
-		result = exp(input_value); // funkcji
-	else if(!fn.compare("ctg"))
-	{
-		if(sin(input_value))// tu musimy uwazac na to zeby mianownik sin() byl  rozny od zera
-			result = (cos(input_value)/sin(input_value));
-		else return false;
-	}
-	else if(!fn.compare("tan"))
-	{
-		if(cos(input_value))// tu musimy uwazac na to zeby mianownik cos() byl  rozny od zera
-			result = (sin(input_value)/(cos(input_value)));
-		else return false;
-	}
-	else if(!fn.compare("log"))
-	{
-		if(input_value) // tu musimy uwazac na argument funkcji log, bo musza byc wieksze od zera
-			result = log10(input_value); // jezeli sa liczymy
-		else return false; // a jezeli nie to zwracamy blad
-	}
-	else if(!fn.compare("ln"))
-	{
-		if(input_value)// tu musimy uwazac na argument funkcji ln, bo musza byc wieksze od zera
-			result = log(input_value);
-		else return false;
-	}
-	else if(!fn.compare("acos"))
-	{
-		result = acos(input_value);
-	}
-	else if(!fn.compare("asin"))
-	{
-		result = asin(input_value);
-	}
-	else if(!fn.compare("atan"))
-	{
-		result = atan(input_value);
-	}
-	else if(!fn.compare("sqrt"))
-	{
-		if(input_value >=0 )
-			result = sqrt(input_value);
-		else return false;
-	}
-	else if(!fn.compare("fac"))
-	{
-		result = silnia(input_value);
-	}
-	else return false; // jezeli nazwa funkcji nie jest zadna z powyzszych to  zwracamy false
-	if(!fn.compare("asin") || !fn.compare("acos") || !fn.compare("atan"))
-	{
-		/*if(units == trig::deg)
-		{
-			ostringstream os(ostringstream::out);
-			os << result;
-			string sresult = radToDeg(os.str());
-			result = atof(sresult.c_str());
-		}*/
-	}
-
-	return true; // zwracamy true - funckja wykonala sie poprawnie
-}
-
 /**
 * Pobiera kolejny element wyra¿enia.
 * Elementem mo¿e byæ zarówno liczba, funkcja czy operator.
@@ -171,36 +55,6 @@ int CONP::getNextElement(string exp,string &buffer, int &position,bool ONP)
 	// pomijanie bia³ych znaków
 	while(i < exp.length() && (exp[i] == ' ' || exp[i] == '\t'))
 		i++;
-
-	// jezeli napotkamy litere tzn ze moze wystapic funkcja
-	if((exp[i] >= 'A' && exp[i] <= 'Z') || (exp[i] >= 'a' && exp[i] <= 'z'))
-	{
-		int lb=-1,rb=-1; // zmienne pomocnicze, pozycje lewego i prawego nawiasu
-		string s = exp.substr(i,exp.length()-i); // pomocniczy string - zawiera exp znakow od poczatku funkcji do konca wyrazenia 
-		lb = s.find('('); // znajdz pozycje lewego nawiasu
-		rb = s.find(')');// i prawego funkcji
-		if(!ONP) // jezeli nie mamy do czynienia z wyrazneiem w postaci ONP
-		{
-			if(lb < 0 || rb < 0 || rb <= lb ) // jezeli cos nie tak z nawiasami to
-				return ERROR; // zwracamy blad
-			buffer = s.substr(0,lb); // obcinamy stringa tak aby zostala sama nazwa funkcji np sin
-		}
-		else // a jezeli mamy wyrazenie w ONP
-			{
-				lb = s.find(' '); // to nie szukany juz nawiasu ale spacji po nazwie funkcji
-				buffer = s.substr(0,lb);
-			}
-		
-		if(!isFunction(buffer)) // jezeli funkcja jest nieobslugiwana zwroc BLAD
-			return ERROR;
-		
-		buffer+= ' '; // dodajemy odstep dla przejrzystosci
-		if(!ONP)
-			position += lb; // zwiekszamy pozycje  na nastepna za nazwa funkcji aby moc dalej parsowac
-		else
-			position += (lb+1);
-		return FUNCTION; // zwracamy sygnal ze pobrano funkcje
-	}
 
 	// sprawdzamy czy znak jest operatorem
 	if(!isdigit(exp[i]) && exp[i] != '.') // jezeli jest sprawdzamy czy nie jest to operator jednoargumentowy + -
@@ -275,10 +129,6 @@ int CONP::infixToONP(string infix,string &onp)
 				onp += buffer;//dajemy na wyjœcie
 				break;
 			
-			case FUNCTION: // jezeli funkcje
-				stack.push(buffer); // dodajemy na stack
-				break;
-			
 			case OPERATOR : // jezeli operator
 			// dopóki na stackie znajduje sie operator ktorego kolejnosc(getPrior) wykonywania
 			// jest wieksza niz aktualnei pobranego
@@ -349,16 +199,6 @@ int CONP::evaluateONP(std::string onp,long double &result)
 		{
 			case NUMBER: // jezeli napotkamy liczbe
 				stack.push(buffer); // dajemy ja na stos
-				break;
-			case FUNCTION: // jezeli funkcje
-				if(stack.pop(buffer2)) // i jezeli na stosie jest jakis argument
-					if(!evaluateFunction(buffer,buffer2,a)) // obliczamy wartosc i zapisujemy do a
-						return ERROR; // jezeli nie udal osie obliczyc zwracamy BLAD
-					else;
-				else return ERROR; // jezeli nie bylo na stosie argumentu rowniez zwracamy blad
-				sprintf(buf,"%.15lf",a); // kopiujemy double do ciagu znakow
-				buffer2 = buf; // oraz do stringa
-				stack.push(buffer2); // i dajemy na stos
 				break;
 			case OPERATOR: // jezeli napotkamy operator
 				if(buffer[0] == '+') // i jezeli jest to plus

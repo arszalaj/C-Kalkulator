@@ -53,9 +53,7 @@ public:
 
 
 private:
-	bool isFunction(string fn);
 	int getPrior(string op,int &assoc);
-	bool evaluateFunction(string fn, string arg, long double &result);
 	int getNextElement(string exp,string &buffer, int &position,bool ONP);
 	long long my_atoll(const char *instr) const;
 	int silnia(int n) const;
