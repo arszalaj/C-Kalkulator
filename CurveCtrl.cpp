@@ -577,7 +577,7 @@ BOOL CCurveCtrl::AddData(CCurve* pCurve, float fHori, float fVert)
 		return FALSE;
 
 	// ad data to array, inserted position decided by horizontal value
-	ASSERT(pCurve->m_fArrHoriValue.GetSize() == pCurve->m_fArrVertValue.GetSize());
+	//ASSERT(pCurve->m_fArrHoriValue.GetSize() == pCurve->m_fArrVertValue.GetSize());
 	InsertDataToCurve(pCurve, fHori, fVert);
 
 	// save max and min values in horizontal
@@ -602,8 +602,8 @@ int CCurveCtrl::InsertDataToCurve(CCurve* pCurve, float fHori, float fVert, CPoi
 {
 	if (!pCurve)
 		return -1;
-	ASSERT(pCurve->m_fArrHoriValue.GetSize() == pCurve->m_fArrVertValue.GetSize());
-	ASSERT(pCurve->m_fArrHoriValue.GetSize() == pCurve->m_ArrPoint.GetSize());
+	//ASSERT(pCurve->m_fArrHoriValue.GetSize() == pCurve->m_fArrVertValue.GetSize());
+	//ASSERT(pCurve->m_fArrHoriValue.GetSize() == pCurve->m_ArrPoint.GetSize());
 	int iIndex;
 	for (iIndex = pCurve->m_fArrHoriValue.GetUpperBound(); iIndex >= 0; iIndex--)
 	{

@@ -274,6 +274,8 @@ void CTestCurveDlg::OnBtnAdd()
 	string exp = buffer.GetString();
 	int i = 0;
 
+	float leftBound = -7, downBound = -7, widthOfChart = 14, righBound = leftBound + widthOfChart, upBound = downBound + widthOfChart;
+
 	while(i < exp.length())
 	{	
 		if(isdigit(exp[i]) && exp[i+1] == 'x')
@@ -282,11 +284,14 @@ void CTestCurveDlg::OnBtnAdd()
 		}
 		i++;
 	}
-	for (float f = -7.0f; f < 6.28f; f += 0.1f)
+	for (float f = leftBound; f < righBound; f += 0.1f)
 	{
 		fX = f;
 		fY = evaluate(exp,f);
-		m_pCurveCtrl->AddData(strTitle,  fX, fY);
+		if(fY > downBound && fY < upBound)
+		{
+			m_pCurveCtrl->AddData(strTitle,  fX, fY);
+		}
 	}
 	//fX = 6.28f;
 	//fY = 100 * m_nCurveCount * float(sin(6.28));
